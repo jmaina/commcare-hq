@@ -321,3 +321,30 @@ class CaseIndexData(models.Model):
         ret.referenced_type = index.referenced_type
         ret.referenced_id = index.referenced_id
         return ret
+
+
+class SyncLog(models.Model):
+    id = models.CharField(max_length=64, primary_key=True)
+    date = models.DateTimeField(null=True)
+    user_id = models.CharField(max_length=64, null=True)
+    previous_log_id = models.CharField(max_length=64, null=True)  # previous sync log, forming a chain
+    last_seq = models.CharField(max_length=1024, null=True)         # the last_seq of couch during this sync
+    duration = models.IntegerField(null=True)  # in seconds
+
+    # we need to store a mapping of cases to indices for generating the footprint
+
+    # cases_on_phone represents the state of all cases the server
+    # thinks the phone has on it and cares about.
+    cases_on_phone = models.IntegerField(null=True)
+
+    # dependant_cases_on_phone represents the possible list of cases
+    # also on the phone because they are referenced by a real case's index
+    # (or a dependent case's index).
+    # This list is not necessarily a perfect reflection
+    # of what's on the phone, but is guaranteed to be after pruning
+    dependent_cases_on_phone = models.IntegerField(null=True)
+
+    # owner_ids_on_phone stores the ids the phone thinks it's the owner of.
+    # This typically includes the user id,
+    # as well as all groups that that user is a member of.
+    owner_ids_on_phone = models.IntegerField(null=True)
