@@ -9,7 +9,8 @@ from lxml import etree
 from eulxml.xmlmap import StringField, XmlObject, IntegerField, NodeListField, NodeField
 from corehq.apps.app_manager.exceptions import UnknownInstanceError, ScheduleError
 from corehq.apps.app_manager.templatetags.xforms_extras import trans
-from corehq.apps.app_manager.const import CAREPLAN_GOAL, CAREPLAN_TASK, SCHEDULE_LAST_VISIT, SCHEDULE_PHASE
+from corehq.apps.app_manager.const import CAREPLAN_GOAL, CAREPLAN_TASK, SCHEDULE_LAST_VISIT, SCHEDULE_PHASE, \
+    CASE_ID_AUTOGEN
 from corehq.apps.app_manager.xpath import ProductInstanceXpath
 from corehq.apps.hqmedia.models import HQMediaMapItem
 from .exceptions import MediaResourceError, ParentModuleReferenceError, SuiteValidationError
@@ -892,6 +893,7 @@ class SuiteGenerator(SuiteGeneratorBase):
                                             stack=Stack()
                                         )
                                         frame = CreateFrame()
+                                        frame.add_command(self.id_strings.menu(module))
                                         frame.add_command(self.id_strings.form_command(form))
                                         d.action.stack.add_frame(frame)
 
@@ -1218,9 +1220,9 @@ class SuiteGenerator(SuiteGeneratorBase):
         )
 
     def configure_entry_as_case_list_form(self, module, form, entry):
-        entry.datums.append(SessionDatum(id='case_id', function='uuid()'))
+        entry.datums.append(SessionDatum(id=CASE_ID_AUTOGEN, function='uuid()'))
         entry.stack = Stack()
-        case_id = session_var('case_id')
+        case_id = session_var(CASE_ID_AUTOGEN)
         case_count = CaseIDXPath(case_id).case().count()
         frame_case_created = CreateFrame(if_clause='{} > 0'.format(case_count))
         frame_case_created.add_command(self.id_strings.menu(module))
