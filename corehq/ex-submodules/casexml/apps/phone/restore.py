@@ -87,11 +87,11 @@ class RestoreConfig(object):
                                         actual=parsed_hash,
                                         case_ids=self.sync_log.get_footprint_of_cases_on_phone())
 
-    def get_stock_payload(self, syncop):
-        if self.domain and not self.domain.commtrack_enabled:
-            return
+    def get_stock_payload(self, sorted_ops):
+        # if self.domain and not self.domain.commtrack_enabled:
+        #     return
 
-        cases = [e.case for e in syncop.actual_cases_to_sync]
+        cases = [e.case for e in sorted_ops]
         from lxml.builder import ElementMaker
         E = ElementMaker(namespace=COMMTRACK_REPORT_XMLNS)
 
@@ -166,9 +166,10 @@ class RestoreConfig(object):
 
         start_time = datetime.utcnow()
         sync_operation = user.get_case_updates(last_sync)
+        sorted_ops = sorted(sync_operation.actual_cases_to_sync, key=lambda op: op.case._id)
         case_xml_elements = [xml.get_case_element(op.case, op.required_updates, self.version)
-                             for op in sync_operation.actual_cases_to_sync]
-        commtrack_elements = self.get_stock_payload(sync_operation)
+                             for op in sorted_ops]
+        commtrack_elements = self.get_stock_payload(sorted_ops)
 
         last_seq = str(get_db().info()["update_seq"])
 
