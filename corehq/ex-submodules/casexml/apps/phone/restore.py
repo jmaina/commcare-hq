@@ -87,9 +87,9 @@ class RestoreConfig(object):
                                         actual=parsed_hash,
                                         case_ids=self.sync_log.get_footprint_of_cases_on_phone())
 
-    def get_stock_payload(self, syncop):
-        if self.domain and not self.domain.commtrack_enabled:
-            return
+    def get_stock_payload(self, sync_ops):
+        # if self.domain and not self.domain.commtrack_enabled:
+        #     return
 
         from lxml.builder import ElementMaker
         E = ElementMaker(namespace=COMMTRACK_REPORT_XMLNS)
@@ -114,9 +114,9 @@ class RestoreConfig(object):
             if consumption_value is not None:
                 return entry_xml(product_id, consumption_value)
 
-        case_ids = [op.case._id for op in syncop.actual_cases_to_sync]
+        case_ids = [op.case._id for op in sync_ops]
         all_current_ledgers = get_current_ledger_transactions_multi(case_ids)
-        for op in syncop.actual_cases_to_sync:
+        for op in sync_ops:
             commtrack_case = op.case
             current_ledgers = all_current_ledgers[commtrack_case._id]
 
@@ -196,15 +196,16 @@ class RestoreConfig(object):
             response.append(fixture)
 
         # case blocks
+        sorted_ops = sorted(sync_operation.actual_cases_to_sync, key=lambda op: op.case._id)
         case_xml_elements = (
             xml.get_case_element(op.case, op.required_updates, self.version)
-            for op in sync_operation.actual_cases_to_sync
+            for op in sorted_ops
         )
         for case_elem in case_xml_elements:
             response.append(case_elem)
 
         # commtrack balance sections
-        commtrack_elements = self.get_stock_payload(sync_operation)
+        commtrack_elements = self.get_stock_payload(sorted_ops)
         for ct_elem in commtrack_elements:
             response.append(ct_elem)
 
