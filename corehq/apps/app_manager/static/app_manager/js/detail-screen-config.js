@@ -352,7 +352,13 @@ var DetailScreenConfig = (function () {
                 that.header = uiElement.input().val(invisibleVal);
                 that.header.setVisibleValue(visibleVal);
             }());
-            this.format = uiElement.select(DetailScreenConfig.MENU_OPTIONS).val(this.original.format || null);
+
+            // Add the graphing option if this is a graph so that we can set the value to graph
+            var menuOptions = DetailScreenConfig.MENU_OPTIONS;
+            if (this.original.format === "graph"){
+                menuOptions = menuOptions.concat([{value: "graph", label: ""}]);
+            }
+            this.format = uiElement.select(menuOptions).val(this.original.format || null);
 
             (function () {
                 var o = {
@@ -897,19 +903,19 @@ var DetailScreenConfig = (function () {
                         }
                     }
 
+                    var redrawOnAddItem = false;
+                    if (_.isEmpty(that.columns)) {
+                        // Only the button has been drawn, so we want to
+                        // render again, this time with a table.
+                        redrawOnAddItem = true;
+                    }
                     var addItem = function(columnConfiguration) {
                         var col;
-                        var redraw = false;
-                        if (_.isEmpty(that.columns)) {
-                            // Only the button has been drawn, so we want to
-                            // render again, this time with a table.
-                            redraw = true;
-                        }
                         col = that.initColumnAsColumn(
                             Column.init(columnConfiguration, that)
                         );
                         that.fire('add-column', col);
-                        if (redraw) {
+                        if (redrawOnAddItem) {
                             that.render();
                         }
                         return col;
