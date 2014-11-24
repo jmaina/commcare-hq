@@ -614,7 +614,7 @@ var DetailScreenConfig = (function () {
             };
 
             columns = spec[this.columnKey].columns;
-            // Inject tabs into te columns list:
+            // Inject tabs into the columns list:
             var tabs = spec[this.columnKey].tabs || [];
             for (i = 0; i < tabs.length; i++){
                 columns.splice(
@@ -751,7 +751,7 @@ var DetailScreenConfig = (function () {
 
                 // Add columns
                 data[this.columnKey] = JSON.stringify(_.map(
-                    _.filter(this.columns, function(c){return ! c.isTab}),
+                    _.filter(this.columns, function(c){return ! c.isTab;}),
                     function(c){return c.serialize();}
                 ));
 
@@ -766,8 +766,8 @@ var DetailScreenConfig = (function () {
                         acc++;
                     }
                 }
-                data['tabs'] = JSON.stringify(_.map(
-                    _.filter(this.columns, function(c){return c.isTab}),
+                data.tabs = JSON.stringify(_.map(
+                    _.filter(this.columns, function(c){return c.isTab;}),
                     function(c){return c.serialize();}
                 ));
 
