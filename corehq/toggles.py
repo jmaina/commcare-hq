@@ -125,6 +125,12 @@ CASE_LIST_CUSTOM_XML = StaticToggle(
     'Show text area for entering custom case list xml',
 )
 
+DETAIL_LIST_TABS = StaticToggle(
+    'detail-list-tabs',
+    'Tabs in the case detail list',
+    [NAMESPACE_DOMAIN, NAMESPACE_USER]
+)
+
 GRAPH_CREATION = StaticToggle(
     'graph-creation',
     'Case list/detail graph creation',
