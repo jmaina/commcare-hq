@@ -890,22 +890,22 @@ class SuiteGenerator(SuiteGeneratorBase):
                 ).fields
                 d.fields.extend(fields)
 
-            if module.module_type == 'basic' and not module.parent_select.active and \
-                    module.case_list_form.form_id and detail_type.endswith('short'):
-                # add form action to detail
-                form = module.get_form_by_unique_id(module.case_list_form.form_id)
-                d.action = Action(
-                    display=Display(
-                        text=Text(locale_id=self.id_strings.case_list_form_locale(module)),
-                        media_image=module.case_list_form.media_image,
-                        media_audio=module.case_list_form.media_audio,
-                    ),
-                    stack=Stack()
-                )
-                frame = CreateFrame()
-                frame.add_command(self.id_strings.menu(module))
-                frame.add_command(self.id_strings.form_command(form))
-                d.action.stack.add_frame(frame)
+                if module.module_type == 'basic' and not module.parent_select.active and \
+                        module.case_list_form.form_id and detail_type.endswith('short'):
+                    # add form action to detail
+                    form = module.get_form_by_unique_id(module.case_list_form.form_id)
+                    d.action = Action(
+                        display=Display(
+                            text=Text(locale_id=self.id_strings.case_list_form_locale(module)),
+                            media_image=module.case_list_form.media_image,
+                            media_audio=module.case_list_form.media_audio,
+                        ),
+                        stack=Stack()
+                    )
+                    frame = PushFrame()
+                    frame.add_command(self.id_strings.form_command(form))
+                    frame.add_datum(StackDatum(id=CASE_ID_AUTOGEN, value='uuid()'))
+                    d.action.stack.add_frame(frame)
 
             try:
                 if not self.app.enable_multi_sort:
