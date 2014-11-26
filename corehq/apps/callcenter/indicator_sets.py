@@ -86,7 +86,7 @@ class CallCenterIndicators(object):
 
     :param domain:          the domain object
     :param user:            the user to generate the fixture for
-    :param case_sync_op:    the CaseSyncOperation object for the user. This is used to get the users' cases.
+    :param synclog:         the SyncLog object for the current sync. This is used to get the users' cases.
                             if not supplied the users' cases will get re-calculated
     :param custom_cache:    used in testing to verify caching
     :param override_date:   used in testing
@@ -95,13 +95,13 @@ class CallCenterIndicators(object):
     no_value = 0
     name = 'call-center'
 
-    def __init__(self, domain, user, case_sync_op=None, custom_cache=None, override_date=None):
+    def __init__(self, domain, user, synclog=None, custom_cache=None, override_date=None):
         self.domain = domain
         self.user = user
         self.data = defaultdict(dict)
         self.cc_case_type = self.domain.call_center_config.case_type
         self.cache = custom_cache or cache
-        self.case_sync_op = case_sync_op or CaseSyncOperation(user, None)
+        self.synclog = synclog
 
         try:
             self.timezone = pytz.timezone(self.domain.default_timezone)
@@ -134,18 +134,24 @@ class CallCenterIndicators(object):
 
     @property
     @memoized
-    def call_center_cases(self):
-        all_owned_cases = self.case_sync_op.actual_owned_cases
-        return filter(lambda case: case.type == self.cc_case_type, all_owned_cases)
+    def all_user_ids(self):
+        """
+        :return: Set of all user_ids that we need to produce data for.
+        """
+        if self.synclog:
+            all_owned_cases = self.synclog.cases_on_phone
+        else:
+            all_owned_cases = CaseSyncOperation(self.user, None).actual_owned_cases
 
-    @property
-    @memoized
-    def user_to_case_map(self):
-        return {
-            case.hq_user_id: case.case_id
-            for case in self.call_center_cases
-            if hasattr(case, 'hq_user_id') and case.hq_user_id
-        }
+        relevant_cases = filter(lambda case: case.type == self.cc_case_type, all_owned_cases)
+        ids = {getattr(case, 'hq_user_id', None) for case in relevant_cases}
+
+        try:
+            ids.remove(None)
+        except KeyError:
+            pass
+
+        return ids
 
     @property
     @memoized
@@ -153,8 +159,7 @@ class CallCenterIndicators(object):
         """
         :return: Dictionary of user_id -> CachedIndicators
         """
-        keys = [cache_key(user_id, self.reference_date) for user_id in self.user_to_case_map.keys()]
-        cached = self.cache.get_many(keys)
+        cached = self.cache.get_many([cache_key(user_id, self.reference_date) for user_id in self.all_user_ids])
         data = {data['user_id']: CachedIndicators.wrap(data) for data in cached.values()}
         return data
 
@@ -164,7 +169,7 @@ class CallCenterIndicators(object):
         """
         :return: Set of user_ids for whom we need to generate data
         """
-        ids = set(self.user_to_case_map.keys()) - set(self.cached_data.keys())
+        ids = self.all_user_ids - set(self.cached_data.keys())
         return ids
 
     @property
@@ -209,6 +214,10 @@ class CallCenterIndicators(object):
                 mapping[user_id].add(group.get_id)
 
         return mapping
+
+    @property
+    def user_to_case_map(self):
+        return get_callcenter_case_mapping(self.domain.name, self.users_needing_data)
 
     def _add_data(self, queryset, indicator_name, transformer=None):
         """

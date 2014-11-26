@@ -4,7 +4,7 @@ from custom.world_vision.reports import TTCReport
 from custom.world_vision.sqldata.mother_sqldata import MotherRegistrationDetails, ClosedMotherCasesBreakdown, \
     PregnantMotherBreakdownByTrimester, AnteNatalCareServiceOverviewExtended, DeliveryLiveBirthDetails, \
     DeliveryStillBirthDetails, PostnatalCareOverview, CauseOfMaternalDeaths, FamilyPlanningMethods, \
-    DeliveryPlaceMotherDetails, DeliveryPlaceDetailsExtended, NumberOfPNCVisits
+    DeliveryPlaceMotherDetails, DeliveryPlaceDetailsExtended
 from dimagi.utils.decorators.memoized import memoized
 
 
@@ -31,7 +31,6 @@ class MotherTTCReport(TTCReport):
             DeliveryLiveBirthDetails(config=config),
             DeliveryStillBirthDetails(config=config),
             PostnatalCareOverview(config=config),
-            NumberOfPNCVisits(config=config),
             FamilyPlanningMethods(config=config),
             CauseOfMaternalDeaths(config=config)
         ]

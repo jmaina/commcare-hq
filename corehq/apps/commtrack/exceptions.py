@@ -8,7 +8,3 @@ class NotAUserClassError(Exception):
 
 class InvalidProductException(Exception):
     pass
-
-
-class NoDefaultLocationException(Exception):
-    pass

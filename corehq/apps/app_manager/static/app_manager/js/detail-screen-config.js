@@ -86,7 +86,6 @@ ko.bindingHandlers.jqueryElement = {
     }
 };
 
-// saveButton is a required parameter
 var SortRow = function(params){
     var self = this;
     params = params || {};
@@ -98,16 +97,12 @@ var SortRow = function(params){
 
     if (self.notifyButtonOfChanges) {
         self.type.subscribe(function () {
-            self.notifyButton();
+            window.sortRowSaveButton.fire('change');
         });
         self.direction.subscribe(function () {
-            self.notifyButton();
+            window.sortRowSaveButton.fire('change');
         });
     }
-
-    self.notifyButton = function(){
-        params.saveButton.fire('change');
-    };
 
     self.fieldHtml = ko.computed(function () {
         return CC_DETAIL_SCREEN.getFieldHtml(self.field());
@@ -164,11 +159,9 @@ SortRowTemplate.prototype = new SortRow({notifyButtonOfChanges: false});
  *
  * @param properties
  * @param edit is true if the user has permissions to edit the sort rows.
- * @param saveButton
- * The button that should be activated when something changes
  * @constructor
  */
-var SortRows = function (properties, edit, saveButton) {
+var SortRows = function (properties, edit) {
     var self = this;
     self.addButtonClicked = ko.observable(false);
     self.sortRows = ko.observableArray([]);
@@ -182,8 +175,7 @@ var SortRows = function (properties, edit, saveButton) {
         self.sortRows.push(new SortRow({
             field: field,
             type: type,
-            direction: direction,
-            saveButton: saveButton
+            direction: direction
         }));
     };
     self.addSortRowFromTemplateRow = function(row) {
@@ -195,15 +187,14 @@ var SortRows = function (properties, edit, saveButton) {
         self.sortRows.push(new SortRow({
             field: row.textField.val(),
             type: row.type(),
-            direction: row.direction(),
-            saveButton: saveButton
+            direction: row.direction()
         }));
         row.textField.val("");
-        saveButton.fire('change');
+        window.sortRowSaveButton.fire('change');
     };
     self.removeSortRow = function (row) {
         self.sortRows.remove(row);
-        saveButton.fire('change');
+        window.sortRowSaveButton.fire('change');
     };
 
     self.rowCount = ko.computed(function () {
@@ -215,16 +206,16 @@ var SortRows = function (properties, edit, saveButton) {
     });
 };
 
-var filterViewModel = function(filterText, saveButton){
+var filterViewModel = function(filterText){
     var self = this;
     self.filterText = ko.observable(typeof filterText == "string" && filterText.length > 0 ? filterText : "");
     self.showing = ko.observable(self.filterText() !== "");
 
     self.filterText.subscribe(function(){
-        saveButton.fire('change');
+        window.filterSaveButton.fire('change');
     });
     self.showing.subscribe(function(){
-        saveButton.fire('change');
+        window.filterSaveButton.fire('change');
     });
 
     self.serialize = function(){
@@ -254,7 +245,7 @@ ko.bindingHandlers.sortableList = {
                     list.splice(position, 0, item);
                 }
                 ui.item.remove();
-                item.notifyButton();
+                window.sortRowSaveButton.fire('change');
             }
         });
     }
@@ -663,6 +654,13 @@ var DetailScreenConfig = (function () {
                 }
             });
 
+            if (this.containsSortConfiguration){
+                window.sortRowSaveButton = this.saveButton;
+            }
+            if (this.containsFilterConfiguration){
+                window.filterSaveButton = this.saveButton;
+            }
+
             this.render();
             this.on('add-column', function (column) {
                 var i, ii, $tr;
@@ -1006,6 +1004,7 @@ var DetailScreenConfig = (function () {
             this.properties = spec.properties;
             this.screens = [];
             this.model = spec.model || 'case';
+            this.sortRows = new SortRows(this.properties, spec.edit);
             this.lang = spec.lang;
             this.langs = spec.langs || [];
             if (spec.hasOwnProperty('parentSelect') && spec.parentSelect) {
@@ -1021,6 +1020,9 @@ var DetailScreenConfig = (function () {
             this.saveUrl = spec.saveUrl;
             this.graphEnabled = spec.graphEnabled;
             this.calculationEnabled = spec.calculationEnabled;
+
+            var filter_xpath = spec.state.short.filter;
+            this.filter = new filterViewModel(filter_xpath ? filter_xpath : null);
 
             /**
              * Add a Screen to this DetailScreenConfig
@@ -1052,21 +1054,14 @@ var DetailScreenConfig = (function () {
                 );
                 that.screens.push(screen);
                 $location.append(screen.$home);
-                return screen;
             }
 
             if (spec.state.short !== undefined) {
-                var shortScreen = addScreen(spec.state, "short", this.$listHome);
+                addScreen(spec.state, "short", this.$listHome);
             }
             if (spec.state.long !== undefined) {
                 addScreen(spec.state, "long", this.$detailHome);
             }
-
-            // Set up filter
-            var filter_xpath = spec.state.short.filter;
-            this.filter = new filterViewModel(filter_xpath ? filter_xpath : null, shortScreen.saveButton);
-            // Set up SortRows
-            this.sortRows = new SortRows(this.properties, spec.edit, shortScreen.saveButton);
         };
         DetailScreenConfig.init = function ($listHome, $detailHome, spec) {
             var ds = new DetailScreenConfig($listHome, $detailHome, spec);

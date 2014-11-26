@@ -1,6 +1,5 @@
 from django.core.management.base import BaseCommand
-from corehq.apps.programs.models import Program
-from corehq.apps.products.models import Product
+from corehq.apps.commtrack.models import Product, Program
 from dimagi.utils.couch.database import iter_docs
 from datetime import datetime
 

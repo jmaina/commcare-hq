@@ -1,12 +1,19 @@
-from datetime import datetime
-
 from couchdbkit.ext.django.schema import Document, BooleanProperty, StringProperty
-from django.db import models
-
 from casexml.apps.stock.models import DocDomainMapping
-from corehq.apps.products.models import Product
+from datetime import datetime
+from django.db import models
+from corehq.apps.commtrack.models import Product
 from corehq.apps.locations.models import SQLLocation
 from dimagi.utils.dates import force_to_datetime
+
+
+class ILSMigrationCheckpoint(models.Model):
+    domain = models.CharField(max_length=100)
+    date = models.DateTimeField(null=True)
+    start_date = models.DateTimeField(null=True)
+    api = models.CharField(max_length=100)
+    limit = models.PositiveIntegerField()
+    offset = models.PositiveIntegerField()
 
 
 class ILSGatewayConfig(Document):
@@ -260,7 +267,7 @@ class GroupSummary(models.Model):
 
     @property
     def not_received(self):
-        assert self.is_delivery_or_supervision_facility()
+        assert self.title in self.is_delivery_or_supervision_facility()
         return self.responded - self.complete
 
     @property
@@ -420,9 +427,3 @@ class HistoricalLocationGroup(models.Model):
 
     class Meta:
         unique_together = ('location_id', 'date', 'group')
-
-
-class RequisitionReport(models.Model):
-    location_id = models.CharField(max_length=100, db_index=True)
-    submitted = models.BooleanField(default=False)
-    report_date = models.DateTimeField(default=datetime.utcnow)

@@ -1,7 +1,6 @@
 from casexml.apps.stock import const
 from casexml.apps.stock.models import DocDomainMapping, StockTransaction
-from corehq.apps.commtrack.models import update_stock_state_for_transaction
-from corehq.apps.products.models import Product
+from corehq.apps.commtrack.models import Product, update_stock_state_for_transaction
 
 
 def recalculate_domain_consumption(domain):

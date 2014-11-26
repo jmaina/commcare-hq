@@ -36,9 +36,6 @@ class DomainPillow(HQPillow):
         }
     }
 
-    def get_unique_id(self):
-        return DOMAIN_INDEX
-
     @memoized
     def calc_meta(self):
         """

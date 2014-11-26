@@ -35,7 +35,6 @@ dump.rdb
 **/less/*.css
 /staticmedia*
 
-submodules/formdesigner
 submodules/vellum/Vellum
 
 ptop*.txt

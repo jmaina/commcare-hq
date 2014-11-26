@@ -1,8 +1,7 @@
 from couchdbkit import ResourceNotFound
 from django.core.management.base import BaseCommand
 from casexml.apps.case.models import CommCareCase
-from corehq.apps.commtrack.models import StockState
-from corehq.apps.products.models import Product
+from corehq.apps.commtrack.models import Product, Program, StockState
 from dimagi.utils.couch.database import iter_docs
 from datetime import datetime
 

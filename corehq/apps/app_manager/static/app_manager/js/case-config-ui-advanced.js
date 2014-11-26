@@ -855,11 +855,10 @@ var AdvancedCase = (function () {
                     if (!parent) {
                         return "Subcase parent reference is missing";
                     } else if (parent.actionType === 'open') {
-                        if (!parent.repeat_context()) {
+                        if (!parent.repeat_context()){
                             return null;
                         } else if (!self.repeat_context() ||
-                            // manual string startsWith
-                            self.repeat_context().lastIndexOf(parent.repeat_context(), 0) === 0) {
+                            !ko.utils.stringStartsWith(self.repeat_context(), parent.repeat_context())) {
                             return "Subcase must be in same repeat context as parent.";
                         }
                     }

@@ -53,10 +53,9 @@ class StockTransaction(models.Model):
     @classmethod
     def latest(cls, case_id, section_id, product_id):
         relevant = cls._peer_qs(case_id, section_id, product_id)
-        try:
+        if relevant.count():
             return relevant.select_related()[0]
-        except IndexError:
-            return None
+        return None
 
     @classmethod
     def _peer_qs(self, case_id, section_id, product_id):

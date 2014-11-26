@@ -159,9 +159,8 @@ class InvitationView():
         return render(request, self.template, {"form": form})
 
 
-def get_bulk_upload_form(context, context_key="bulk_upload"):
+def get_bulk_upload_form(context):
     return BulkUploadForm(
-        context[context_key]['plural_noun'],
-        context[context_key].get('action'),
-        context_key + "_form"
+        context['bulk_upload']['plural_noun'],
+        context['bulk_upload'].get('action'),
     )
