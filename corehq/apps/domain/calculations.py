@@ -1,13 +1,11 @@
 from collections import defaultdict
-from datetime import date, datetime, timedelta
-from dateutil.relativedelta import relativedelta
+from datetime import datetime, timedelta, time
 
 from django.template.loader import render_to_string
 from django.utils.translation import ugettext as _
 from jsonobject.properties import DateTimeProperty
 from corehq.apps.app_manager.models import ApplicationBase
 from corehq.apps.users.util import WEIRD_USER_IDS
-from corehq.apps.es.sms import SMSES
 
 from dimagi.utils.couch.database import get_db
 from corehq.apps.domain.models import Domain
@@ -102,20 +100,6 @@ def sms(domain, direction):
                         endkey=key + [{}]).one()
     return row["value"] if row else 0
 
-
-def sms_in_last(domain, days=None):
-    query = SMSES().domain(domain).size(0)
-
-    if days:
-        query = query.received(date.today() - relativedelta(days=30))
-
-    return query.run().total
-
-
-def sms_in_last_bool(domain, days=None):
-    return sms_in_last(domain, days) > 0
-
-
 def active(domain, *args):
     now = datetime.now()
     then = (now - timedelta(days=30)).strftime(DATE_FORMAT)
@@ -186,8 +170,7 @@ CALC_ORDER = [
     'cases_in_last--30', 'cases_in_last--60', 'cases_in_last--90',
     'cases_in_last--120', 'active', 'first_form_submission',
     'last_form_submission', 'has_app', 'web_users', 'active_apps',
-    'uses_reminders', 'sms--I', 'sms--O', 'sms_in_last', 'sms_in_last--30',
-    'sms_in_last_bool', 'sms_in_last_bool--30'
+    'uses_reminders', 'sms--I', 'sms--O'
 ]
 
 CALCS = {
@@ -196,10 +179,6 @@ CALCS = {
     'forms': "# forms",
     'sms--I': "# incoming SMS",
     'sms--O': "# outgoing SMS",
-    'sms_in_last--30': "# SMS in last 30 days",
-    'sms_in_last': "# SMS ever",
-    'sms_in_last_bool--30': "used messaging in last 30 days",
-    'sms_in_last_bool': "used messaging ever",
     'cases': "# cases",
     'mobile_users--active': "# active mobile users",
     'mobile_users--inactive': "# inactive mobile users",
@@ -222,8 +201,6 @@ CALC_FNS = {
     "num_mobile_users": num_mobile_users,
     "forms": forms,
     "sms": sms,
-    "sms_in_last": sms_in_last,
-    "sms_in_last_bool": sms_in_last_bool,
     "cases": cases,
     "mobile_users": active_mobile_users,
     "active_cases": not_implemented,
@@ -282,8 +259,7 @@ def _all_domain_stats():
 ES_CALCED_PROPS = ["cp_n_web_users", "cp_n_active_cc_users", "cp_n_cc_users",
                    "cp_n_active_cases", "cp_n_cases", "cp_n_forms",
                    "cp_first_form", "cp_last_form", "cp_is_active",
-                   'cp_has_app', "cp_n_in_sms", "cp_n_out_sms", "cp_n_sms_ever",
-                   "cp_n_sms_30_d", "cp_sms_ever", "cp_sms_30_d"]
+                   'cp_has_app', "cp_n_in_sms", "cp_n_out_sms"]
 
 def total_distinct_users(domains=None):
     """

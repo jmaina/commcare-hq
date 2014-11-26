@@ -23,7 +23,6 @@ class FixtureDataType(Document):
     fields = SchemaListProperty(FixtureTypeField)
     item_attributes = StringListProperty()
     description = StringProperty()
-    copy_from = StringProperty()
 
     @classmethod
     def wrap(cls, obj):

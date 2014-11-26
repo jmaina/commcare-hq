@@ -20,7 +20,6 @@ class MixedTTCReport(TTCReport):
     fields = [WVDatespanFilter, LocationFilter]
     default_rows = 10
     exportable = True
-    is_mixed_report = True
 
     @property
     @memoized
@@ -32,15 +31,16 @@ class MixedTTCReport(TTCReport):
             PregnantMotherBreakdownByTrimester(config=config),
             AnteNatalCareServiceOverview(config=config),
             DeliveryPlaceDetails(config=config),
-            DeliveryStillBirthDetails(config=config),
             DeliveryLiveBirthDetails(config=config),
+            DeliveryStillBirthDetails(config=config),
             PostnatalCareOverview(config=config),
-            AnteNatalCareServiceOverviewExtended(config=config),
             CauseOfMaternalDeaths(config=config),
+            AnteNatalCareServiceOverviewExtended(config=config),
             ChildRegistrationDetails(config=config),
             ClosedChildCasesBreakdown(config=config),
             ImmunizationOverview(config=config),
             ChildrenDeaths(config=config),
+            ChildrenDeathDetails(config=config),
             NutritionMeanMedianBirthWeightDetails(config=config),
             NutritionBirthWeightDetails(config=config),
             NutritionFeedingDetails(config=config),

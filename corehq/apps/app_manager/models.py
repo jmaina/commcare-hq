@@ -547,7 +547,6 @@ class FormBase(DocumentSchema):
         choices=[WORKFLOW_DEFAULT, WORKFLOW_MODULE, WORKFLOW_PREVIOUS]
     )
     auto_gps_capture = BooleanProperty(default=False)
-    no_vellum = BooleanProperty(default=False)
 
     @classmethod
     def wrap(cls, data):

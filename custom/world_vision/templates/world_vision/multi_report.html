@@ -37,54 +37,37 @@
 {% else %}
 
     <style>
-        .mother_report .table-nonfluid, .child_report .table-nonfluid{
-           width: 55%;
+        .table-nonfluid {
+           width: auto;
         }
+        .table tr td:nth-child(1) {width:230px;}
+        .table tr td:nth-child(n + 2) {width:120px;}
 
-        .mother_report .table tr td:nth-child(1), .child_report .table tr td:nth-child(1) {width:150px;}
-        .mother_report .table tr td:nth-child(n + 2), .child_report .table tr td:nth-child(n + 2) {width:100px;}
-
-        .mother_report table, .child_report table {
+        table {
             display: inline-block;
             float: left;
         }
-
-        .mother_report .row ~ table, .child_report .row ~ table {
+        .row ~ table {
             margin-top: 200px;
             display: inline-block;
         }
-
         .accordion-inner {
             width: 100%;
         }
-        .mother_report table + .row, .mother_report .row + .row, .child_report table + .row, .child_report .row + .row {
+        table + .row, .row + .row {
             width: 45%;
             float:right;
             display: inline-block;
         }
-
         svg {
             overflow: visible;
         }
-
-        .mother_child_report .table-nonfluid {
-            width: 30%;
-        }
-
-        .mother_child_report table, .mother_child_report .row {
-            width: 30%;
-            margin-left: 10px;
-            margin-bottom: 5px;
-            float:left;
-            display: inline-block;
-        }
     </style>
-    <div class={{ report.slug }}>
-        {% for thisreport in reports %}
-            {% include 'world_vision/partials/report_table.html' with report_table=thisreport.report_table charts=thisreport.charts chart_span=thisreport.chart_span%}
-            <br />
-        {% endfor %}
-    </div>
+
+    {% for thisreport in reports %}
+        {% include 'world_vision/partials/report_table.html' with report_table=thisreport.report_table charts=thisreport.charts chart_span=thisreport.chart_span%}
+        <br />
+    {% endfor %}
 {% endif %}
 {% endblock %}
 {% block posttable %}{% endblock %}

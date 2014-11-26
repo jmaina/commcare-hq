@@ -1,5 +1,6 @@
-from django.conf.urls import url, patterns
+from django.conf.urls.defaults import *
 
-urlpatterns = patterns('',
+urlpatterns = patterns('',                       
     url(r'^restore/$', 'corehq.apps.ota.views.restore'),
 )
+

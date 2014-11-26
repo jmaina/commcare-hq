@@ -89,7 +89,6 @@ class ClosedChildCasesBreakdown(BaseSqlData):
     show_charts = True
     chart_x_label = ''
     chart_y_label = ''
-    chart_only = True
 
     @property
     def group_by(self):
@@ -134,7 +133,6 @@ class ChildrenDeaths(BaseSqlData):
     custom_total_calculate = True
     accordion_start = True
     accordion_end = False
-    table_only = True
 
     def calculate_total_row(self, rows):
         total_row = []
@@ -347,7 +345,6 @@ class NutritionBirthWeightDetails(BaseSqlData):
     chart_y_label = ''
     accordion_start = False
     accordion_end = False
-    chart_only = True
 
     @property
     def headers(self):

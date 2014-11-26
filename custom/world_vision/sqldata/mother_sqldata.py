@@ -95,7 +95,6 @@ class ClosedMotherCasesBreakdown(BaseSqlData):
     show_charts = True
     chart_x_label = ''
     chart_y_label = ''
-    chart_only = True
 
     @property
     def group_by(self):
@@ -136,7 +135,6 @@ class PregnantMotherBreakdownByTrimester(BaseSqlData):
     show_charts = True
     chart_x_label = ''
     chart_y_label = ''
-    chart_only = True
 
 
     def percent_fn(self, y):
@@ -191,7 +189,6 @@ class AnteNatalCareServiceOverviewExtended(AnteNatalCareServiceOverview):
     show_charts = True
     chart_x_label = ''
     chart_y_label = ''
-    chart_only = True
 
     @property
     def rows(self):
@@ -326,7 +323,6 @@ class DeliveryLiveBirthDetails(BaseSqlData):
     total_row_name = "Total live births"
     accordion_start = False
     accordion_end = False
-    chart_only = True
 
     @property
     def headers(self):
@@ -381,7 +377,7 @@ class DeliveryStillBirthDetails(BaseSqlData):
 
     @property
     def headers(self):
-        return DataTablesHeader(*[DataTablesColumn(''), DataTablesColumn('Number')])
+        return DataTablesHeader(*[DataTablesColumn('Entity'), DataTablesColumn('Number')])
 
     @property
     def columns(self):
@@ -415,7 +411,6 @@ class PostnatalCareOverview(BaseSqlData):
     chart_x_label = ''
     chart_y_label = ''
     accordion_end = False
-    chart_only = True
 
     @property
     def filters(self):
@@ -494,7 +489,6 @@ class CauseOfMaternalDeaths(BaseSqlData):
     show_charts = True
     chart_x_label = ''
     chart_y_label = ''
-    table_only = True
 
     @property
     def group_by(self):
