@@ -55,6 +55,7 @@ branches:
   #- help-text # j$  10/8  removed 11/3 by Daniel
   - masterlist-workflow # j$  10/8
 # - double-management # SK 10/15
+  - custom-case-list-pane+bulk-app-translate
   - bulk-app-translate # Noah 9/18
   - case-detail-tabs+share-fixtures # Noah 11/15
   - case-detail-tabs # Noah 11/6
