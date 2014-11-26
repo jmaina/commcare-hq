@@ -114,12 +114,6 @@ PRBAC_DEMO = StaticToggle(
     'Roles and permissions'
 )
 
-ACCOUNTING_PREVIEW = StaticToggle(
-    'accounting_preview',
-    'Accounting preview',
-    [NAMESPACE_DOMAIN, NAMESPACE_USER]
-)
-
 BOOTSTRAP3_PREVIEW = StaticToggle(
     'bootstrap3_preview',
     'Bootstrap 3 Preview',
@@ -214,4 +208,15 @@ NEW_CASE_PROCESSING = PredicatablyRandomToggle(
     'Use new case processing/rebuild logic',
     namespace=NAMESPACE_DOMAIN,
     randomness=0.05,
+)
+
+SYNC_ALL_LOCATIONS = StaticToggle(
+    'sync_all_locations',
+    'Sync the full location hierarchy when syncing location fixtures',
+    [NAMESPACE_DOMAIN]
+)
+
+MULTIMEDIA_EXPORT = StaticToggle(
+    'multimedia_export',
+    'Export multimedia from forms'
 )
