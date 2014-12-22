@@ -2,6 +2,8 @@ import logging
 from django.conf import settings
 from celery.task import task
 import math
+from corehq.apps.sms.exceptions import UndefinedUsernameException
+from corehq.apps.users.models import CommCareUser
 
 from dimagi.utils.modules import to_function
 from dimagi.utils.logging import notify_exception
@@ -241,19 +243,27 @@ def process_sms_registration(msg):
     keyword1 = text_words[0] if len(text_words) > 0 else ""
     keyword2 = text_words[1].lower() if len(text_words) > 1 else ""
     keyword3 = text_words[2] if len(text_words) > 2 else ""
+    keyword4 = text_words[3] if len(text_words) > 3 else ""
+    keyword5 = text_words[4] if len(text_words) > 4 else ""
+    cleaned_phone_number = strip_plus(msg.phone_number)
     if keyword1 in REGISTRATION_KEYWORDS and keyword2 != "":
         domain = Domain.get_by_name(keyword2, strict=True)
         if domain is not None:
             if keyword3 in REGISTRATION_MOBILE_WORKER_KEYWORDS and domain.sms_mobile_worker_registration_enabled:
-                #TODO: Register a PendingMobileWorker object that must be approved by a domain admin
-                pass
+                if keyword4 != '' and keyword5 != '':
+                    raise UndefinedUsernameException()
+                new_user = CommCareUser.create(domain.name, keyword4, keyword5)
+                new_user.add_phone_number(cleaned_phone_number)
+                new_user.save_verified_number(domain.name, cleaned_phone_number, True, None)
+                new_user.save()
+                registration_processed = True
             elif domain.sms_case_registration_enabled:
                 register_sms_contact(
                     domain=domain.name,
                     case_type=domain.sms_case_registration_type,
                     case_name="unknown",
                     user_id=domain.sms_case_registration_user_id,
-                    contact_phone_number=strip_plus(msg.phone_number),
+                    contact_phone_number=cleaned_phone_number,
                     contact_phone_number_is_verified="1",
                     owner_id=domain.sms_case_registration_owner_id,
                 )
