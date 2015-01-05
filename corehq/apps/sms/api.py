@@ -234,19 +234,15 @@ def process_sms_registration(msg):
     
     To have a mobile worker register itself, do the following:
 
-        NOTE: This is not yet implemented and may change slightly.
-
         1) Select "Enable Mobile Worker Registration via SMS" in project settings.
 
-        2) Text in "join <domain> worker", where <domain> is the domain to join. If the
-        sending number does not exist in the system, a PendingCommCareUser object will be
-        created, tied to that number.
+        2) Text in "join <domain> worker <username>", where <domain> is the domain to join and <username> is the
+        requested username.  If the username doesn't exist it will be created, otherwise the registration will error.
+        If the username argument is not specified, the username will be the mobile number
+
         The "join" and "worker" keywords can be any keyword in REGISTRATION_KEYWORDS and
         REGISTRATION_MOBILE_WORKER_KEYWORDS, respectively. This is meant to support multiple 
         translations.
-
-        3) A domain admin will have to approve the addition of the mobile worker before
-        a CommCareUser can actually be created.
     """
     registration_processed = False
     text_words = msg.text.upper().split()
