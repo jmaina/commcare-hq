@@ -1,13 +1,16 @@
 from django.test import TestCase
 from corehq.apps.domain.models import Domain
 from corehq.apps.sms.mixin import SMSBackend, BackendMapping, BadSMSConfigException
-from corehq.apps.sms.api import send_sms, send_sms_to_verified_number, send_sms_with_backend, send_sms_with_backend_name, BackendAuthorizationException
+from corehq.apps.sms.api import send_sms, send_sms_to_verified_number, send_sms_with_backend, send_sms_with_backend_name, \
+    incoming
 from corehq.apps.sms.models import CommConnectCase
 from django.conf import settings
 from couchdbkit.ext.django.schema import *
 from couchdbkit.exceptions import ResourceNotFound
 from casexml.apps.case.models import CommCareCase
 #from .inbound_handlers import *
+from corehq.apps.users.models import CommCareUser
+
 
 class BackendInvocationDoc(Document):
     pass
@@ -392,4 +395,14 @@ class BackendTestCase(TestCase):
         self.backend3.delete_invoke_doc()
         self.assertFalse(self.backend3.invoke_doc_exists())
 
+    def test_sms_registration(self):
+        incoming("+9991234567", "JOIN {} WORKER tester".format(self.domain), "BACKEND1")
+        # Test without mobile worker registration enabled
+        self.assertIsNone(CommCareUser.get_by_username("tester"))
 
+        # Enable mobile worker registration
+        setattr(self.domain_obj, "sms_mobile_worker_registration_enabled", True)
+        self.domain_obj.save()
+
+        incoming("+9991234567", "JOIN {} WORKER tester".format(self.domain), "BACKEND1")
+        self.assertIsNotNone(CommCareUser.get_by_username("tester"))

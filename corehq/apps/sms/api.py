@@ -1,8 +1,9 @@
 import logging
+import random
+import string
 from django.conf import settings
 from celery.task import task
 import math
-from corehq.apps.sms.exceptions import UndefinedUsernameException
 from corehq.apps.users.models import CommCareUser
 
 from dimagi.utils.modules import to_function
@@ -207,6 +208,15 @@ def send_message_via_backend(msg, backend=None, orig_phone_number=None):
         log_sms_exception(msg)
         return False
 
+
+def random_password():
+    """
+    This method creates a random password for an sms user registered via sms
+    """
+    chars = string.ascii_uppercase + string.ascii_lowercase + string.digits
+    return ''.join(random.choice(chars) for x in range(15))
+
+
 def process_sms_registration(msg):
     """
     This method handles registration via sms.
@@ -244,15 +254,17 @@ def process_sms_registration(msg):
     keyword2 = text_words[1].lower() if len(text_words) > 1 else ""
     keyword3 = text_words[2] if len(text_words) > 2 else ""
     keyword4 = text_words[3] if len(text_words) > 3 else ""
-    keyword5 = text_words[4] if len(text_words) > 4 else ""
     cleaned_phone_number = strip_plus(msg.phone_number)
     if keyword1 in REGISTRATION_KEYWORDS and keyword2 != "":
         domain = Domain.get_by_name(keyword2, strict=True)
         if domain is not None:
             if keyword3 in REGISTRATION_MOBILE_WORKER_KEYWORDS and domain.sms_mobile_worker_registration_enabled:
-                if keyword4 != '' and keyword5 != '':
-                    raise UndefinedUsernameException()
-                new_user = CommCareUser.create(domain.name, keyword4, keyword5)
+                if keyword4 != '':
+                    username = keyword4
+                else:
+                    username = cleaned_phone_number
+                password = random_password()
+                new_user = CommCareUser.create(domain.name, username, password)
                 new_user.add_phone_number(cleaned_phone_number)
                 new_user.save_verified_number(domain.name, cleaned_phone_number, True, None)
                 new_user.save()
