@@ -36,7 +36,7 @@ WORKDIR /usr/src/commcare-hq
 
 COPY . /usr/src/commcare-hq
 
-RUN mv docker/localsettings.py localsettings.py
+RUN mv docker/localsettings.docker.py localsettings.py
 
 EXPOSE 8000
 
