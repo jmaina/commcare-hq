@@ -27,13 +27,10 @@ RUN wget -O jdk.tar.gz --no-check-certificate --no-cookies --header "Cookie: ora
  && update-alternatives --auto java
 
 RUN pip install --upgrade pip
-
-COPY requirements/requirements.txt /tmp/requirements.txt
-
-RUN pip install -r /tmp/requirements.txt
+COPY requirements/requirements.txt requirements/prod-requirements.txt /tmp
+RUN pip install -r /tmp/requirements.txt -r /tmp/prod-requirements.txt
 
 WORKDIR /usr/src/commcare-hq
-
 COPY . /usr/src/commcare-hq
 
 RUN mv docker/localsettings.docker.py localsettings.py
